@@ -38,6 +38,14 @@ x_train[:, 0] = obj_to_str(x_train[:, 0])
 # isMarried
 x_train[:, 1] = obj_to_str(x_train[:, 1])
 
+# Education
+x_train[:, 3] = obj_to_str(x_train[:, 3])
+
+# Self_Employed
+x_train[:, 4] = obj_to_str(x_train[:, 4])
+
+# Property_Area
+x_train[:, 10] = obj_to_str(x_train[:, 10])
 
 
 # Taking care of missing data

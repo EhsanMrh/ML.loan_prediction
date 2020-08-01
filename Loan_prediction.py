@@ -62,11 +62,16 @@ for index, val in enumerate(x_test['Dependents']):
 
 # Change str type to float
 x_train['Dependents'] = x_train['Dependents'].astype(float)
+x_test['Dependents'] = x_test['Dependents'].astype(float)
 
 for col in missing_data_cols:
     x_train[col] = imputer.fit_transform(
         np.array(
             x_train[col].values.reshape(-1,1))
+        )[:, 0]
+    x_test[col] = imputer.fit_transform(
+        np.array(
+            x_test[col].values.reshape(-1,1))
         )[:, 0]
     
     
@@ -77,57 +82,47 @@ sc = StandardScaler()
 x_train = sc.fit_transform(x_train)
 x_test = sc.transform(x_test)
 
-# =============================================================================
-# # Find best model to prediction
-# # Import Models
-# from sklearn.linear_model import LogisticRegression
-# from sklearn.neighbors import KNeighborsClassifier
-# from sklearn.naive_bayes import GaussianNB
-# from sklearn.tree import DecisionTreeClassifier
-# from sklearn.svm import SVC
-# 
-# models = []
-# =============================================================================
-   
+# Find best model to prediction
+# Import Models
+from sklearn.linear_model import LogisticRegression
+from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.naive_bayes import GaussianNB
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.svm import SVC
 
-# =============================================================================
-# from sklearn.preprocessing import LabelEncoder, OneHotEncoder
-# # Encoding dataset
-# # Change array of obj to array of str
-# label_encoder = LabelEncoder()
-# def obj_to_str(column):
-#     x_arr_str = []
-#     for el in column:
-#         x_arr_str.append(el)
-#     x_arr_str = np.array(x_arr_str)
-#     new_col = label_encoder.fit_transform(x_arr_str)
-#     
-#     return new_col
-# 
-# # Gender
-# x_train[:, 0] = obj_to_str(x_train[:, 0])
-# # isMarried
-# x_train[:, 1] = obj_to_str(x_train[:, 1])
-# # Education
-# x_train[:, 3] = obj_to_str(x_train[:, 3])
-# # Self_Employed
-# x_train[:, 4] = obj_to_str(x_train[:, 4])
-# # Property_Area
-# x_train[:, 10] = obj_to_str(x_train[:, 10])
-# 
-# # OneHotEncoder    
-# # creating one hot encoder object with categorical feature 0 
-# # indicating the first column 
-# from sklearn.compose import ColumnTransformer 
-#    
-# # creating one hot encoder object with categorical feature 0 
-# # indicating the first column 
-# onehotencoder = OneHotEncoder() 
-# 
-# columnTransformer = ColumnTransformer([('encoder', 
-#                                         onehotencoder, 
-#                                         [0])], 
-#                                       remainder='passthrough') 
-# 
-# test = np.array(columnTransformer.fit_transform(x_train), dtype = np.str) 
-# =============================================================================
+from sklearn.model_selection import cross_val_score
+from sklearn.model_selection import StratifiedKFold
+
+models = []
+models.append(('LR', LogisticRegression(solver='liblinear', multi_class='ovr')))
+models.append(('LDA', LinearDiscriminantAnalysis()))
+models.append(('KNN', KNeighborsClassifier()))
+models.append(('CART', DecisionTreeClassifier()))
+models.append(('NB', GaussianNB()))
+models.append(('SVM', SVC(gamma='auto')))
+   
+names = []
+results = []
+
+for name, model in models:
+    kfold = StratifiedKFold(
+        n_splits=10,
+        random_state=1,
+        shuffle=True)
+    
+    cv_results = cross_val_score(
+        model,
+        x_train,
+        y_train,
+        cv = kfold,
+        scoring='accuracy')
+    
+    names.append(name)
+    results.append(cv_results)
+    print(name, cv_results.mean(), cv_results.std())
+    
+    
+model = LinearDiscriminantAnalysis()
+model.fit(x_train, y_train)
+predict = model.predict(x_test)

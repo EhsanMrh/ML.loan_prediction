@@ -23,7 +23,7 @@ dataset_train_dummies = pd.get_dummies(dataset_train,
                                      'Property_Area',
                                      'Loan_Status'])
  
-dataset_test_dummies = pd.get_dummies(dataset_train, 
+dataset_test_dummies = pd.get_dummies(dataset_test, 
                                  columns = [
                                      'Gender',
                                      'Married' ,
@@ -36,22 +36,25 @@ dataset_test_dummies = pd.get_dummies(dataset_train,
 x_train = dataset_train_dummies.iloc[:, 1:18].values
 y_train = dataset_train_dummies.iloc[:, 18:20].values
 
-x_test = dataset_test.iloc[:, 1:12].values
-
-
+x_test = dataset_test.iloc[:, 1:18].values
 
 
 # Taking care of missing data
 from sklearn.impute import SimpleImputer
-imputer = SimpleImputer(missing_values = 'nan', strategy = 'mean')
-imputer = imputer.fit(x_train[:, 0])
-X[:, 0] = imputer.transform(X[:, 0])
+imputer = SimpleImputer(missing_values = np.nan, strategy = 'most_frequent')
+    # most_frequent
+    # mean
+    
+missing_data_cols = [0, 3, 4, 5]
+for index, val in enumerate(x_train[: ,0]):
+    if val == '3+':
+        x_train[index, 0] = 3.0
 
-# get_dummies
-t_dummies = pd.get_dummies(x_train[:, 0]) 
-x_train[:, 1] = t_dummies
-
-
+for col in missing_data_cols:
+    x_train[:, col] = imputer.fit_transform(
+        np.array(
+            x_train[:, col].reshape(-1,1))
+        )[:, 0]
 
    
 

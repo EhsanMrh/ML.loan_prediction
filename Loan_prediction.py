@@ -8,6 +8,12 @@ of dependents, and employments. We can build a linear model for this project.
 import pandas as pd
 import numpy as np
 
+# Import Models
+from sklearn.linear_model import LogisticRegression
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.naive_bayes import GaussianNB
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.svm import SVC
 
 # Load dataset
 dataset_train = pd.DataFrame(pd.read_csv('loan_train.csv'))
@@ -55,6 +61,12 @@ for col in missing_data_cols:
         np.array(
             x_train[:, col].reshape(-1,1))
         )[:, 0]
+    
+    
+# Feature scaling
+
+# Find best model to prediction
+models = []
 
    
 
